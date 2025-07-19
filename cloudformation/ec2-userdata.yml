@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion:'2025-07-17'
+Description: 2-Tier Flask App via EC2 UserData
+
+Parameters:
+    KeyName:
+        Type: AWS::EC2::KeyPair::KeyName
+        Description: Existing EC2 KeyPair FOR SSH access
+
+
+Resources:
+    WebAppSG:
+        Type: AWS::EC2:SecurityGroup
+        Properties:
+            GroupDescription: Allow SSH & HTTP
+                SecurityGroupIngress:
+                    - IpProtocol: tcp
+                      FromPort: 22
+                      ToPort: 22
+                      CidrIp: 0.0.0.0/0
+                    - IpProtocol: tcp
+                      FromPort: 80   
+                      ToPort: 80
+                      CidrIp: 0.0.0.0/0                  
+                      
+    WeAppEC2:
+        Type: AWS::EC2::Instance
+        Properties:
+            InstanceType: t2.micro
+            KeyName: !Ref KeyName
+            SecurityGroups:
+                - !Ref WebAppSG
+             ImageID: ami-0c02fb55956c7d316
+             UserData:
+                Fn::Base64: !Sub |
+                    #!/bin/bash
+                    apt update -y
+                    apt install -y python3-pip git
+                    git clone https://github.com/tyler/2tier-simple.git /home/ubuntu/App
+                    cd /home/ubuntu/App
+                    pip3 install -r requirements.txt
+                    nohup python3 app.py &
+
+Outputs:
+    PublicIP:
+    Description: Public IPv4 of EC2
+    Value: !GetAtt WebAppEC2.PublicIp
