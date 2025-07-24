@@ -45,7 +45,6 @@ Resources:
           git clone https://github.com/tylerleee5/2tier-simple.git /home/ubuntu/app
           cd /home/ubuntu/app
           pip3 install --break-system-packages --ignore-installed --no-cache-dir -r requirements.txt
-          ec2-54-163-58-67.compute-1.amazonaws.com
           sudo chown -R ubuntu:ubuntu /home/ubuntu/app
           nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
 
