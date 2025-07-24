@@ -22,6 +22,10 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 0.0.0.0/0  
 
   WebAppEC2:
     Type: AWS::EC2::Instance
@@ -38,9 +42,11 @@ Resources:
           set -xe
           apt update -y
           apt install -y python3-pip git
-          git clone https://github.com/tylerleee5/2tier-simple.git /home/ubuntu
+          git clone https://github.com/tylerleee5/2tier-simple.git /home/ubuntu/app
           cd /home/ubuntu/app
-          pip3 install --break-system-packages -r requirements.txt
+          pip3 install --break-system-packages --ignore-installed --no-cache-dir -r requirements.txt
+          ec2-54-163-58-67.compute-1.amazonaws.com
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/app
           nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
 
 
