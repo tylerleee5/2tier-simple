@@ -1,5 +1,6 @@
+
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 2‑Tier Flask App via EC2 UserData
+Description: 2 Tier Flask App via EC2 UserData
 
 Parameters:
   KeyName:
@@ -29,16 +30,19 @@ Resources:
       KeyName: !Ref KeyName
       SecurityGroups:
         - !Ref WebAppSG
-      ImageId: ami-0c02fb55956c7d316  # Ubuntu 22.04 in us-east-1
+      ImageId: ami-020cba7c55df1f615  # Ubuntu 22.04 in us-east-1
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          exec > /var/log/user-data.log 2>&1
+          set -xe
           apt update -y
           apt install -y python3-pip git
-          git clone https://github.com/tylerleee5/2tier-simple.git /home/ubuntu/app
-          cd /home/ubuntu/app/app
-          pip3 install -r requirements.txt
-          nohup python3 app.py &
+          git clone https://github.com/tylerleee5/2tier-simple.git /home/ubuntu
+          cd /home/ubuntu/app
+          pip3 install --break-system-packages -r requirements.txt
+          nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
+
 
 Outputs:
   PublicIP:
