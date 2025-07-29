@@ -25,16 +25,16 @@ jobs:
         id: get-ip
         run: |
           # Option 1: If you know the instance ID
-          EC2_IP=$(aws ec2 describe-instances \
-            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
-            --query 'Reservations[0].Instances[0].PublicIpAddress' \
-            --output text)
+          # EC2_IP=$(aws ec2 describe-instances \
+          #  --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+          #  --query 'Reservations[0].Instances[0].PublicIpAddress' \
+          #  --output text)
           
           # Option 2: If you want to find by tag (alternative)
-          # EC2_IP=$(aws ec2 describe-instances \
-          #   --filters "Name=tag:Name,Values=WebAppEC2" "Name=instance-state-name,Values=running" \
-          #   --query 'Reservations[0].Instances[0].PublicIpAddress' \
-          #   --output text)
+            EC2_IP=$(aws ec2 describe-instances \
+             --filters "Name=tag:Name,Values=WebAppEC2" "Name=instance-state-name,Values=running" \
+             --query 'Reservations[0].Instances[0].PublicIpAddress' \
+             --output text)
           
           echo "EC2_IP=$EC2_IP" >> $GITHUB_OUTPUT
           echo "Found EC2 IP: $EC2_IP"
