@@ -1,6 +1,5 @@
-
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 2 Tier Flask App via EC2 UserData
+Description: 2 Tier Flask App via EC2 UserData with Elastic IP
 
 Parameters:
   KeyName:
@@ -48,10 +47,22 @@ Resources:
           sudo chown -R ubuntu:ubuntu /home/ubuntu/app
           nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
 
+  # Add Elastic IP
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref WebAppEC2
+      Domain: vpc
 
 Outputs:
   PublicIP:
-    Description: Public IPv4 of EC2
-    Value: !GetAtt WebAppEC2.PublicIp
+    Description: Static Public IPv4 of EC2 (Elastic IP)
+    Value: !Ref ElasticIP
     Export:
       Name: EC2PublicIP
+  
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref WebAppEC2
+    Export:
+      Name: EC2InstanceId
