@@ -21,20 +21,28 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Get EC2 Public IP
+      - name: Get EC2 Instance ID and IP
         id: get-ip
         run: |
-          # Option 1: If you know the instance ID
-          # EC2_IP=$(aws ec2 describe-instances \
-          #  --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
-          #  --query 'Reservations[0].Instances[0].PublicIpAddress' \
-          #  --output text)
+          # Get Instance ID from CloudFormation outputs
+          INSTANCE_ID=$(aws cloudformation describe-stacks \
+            --stack-name ${{ secrets.CLOUDFORMATION_STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`InstanceId`].OutputValue' \
+            --output text)
           
-          # Option 2: If you want to find by tag (alternative)
-            EC2_IP=$(aws ec2 describe-instances \
-             --filters "Name=tag:Name,Values=WebAppEC2" "Name=instance-state-name,Values=running" \
-             --query 'Reservations[0].Instances[0].PublicIpAddress' \
-             --output text)
+          echo "Found Instance ID: $INSTANCE_ID"
+          
+          # Get Public IP using Instance ID
+          EC2_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+          
+          # Check if we got a valid IP
+          if [ "$EC2_IP" == "null" ] || [ -z "$EC2_IP" ]; then
+            echo "ERROR: Could not find EC2 IP for instance $INSTANCE_ID"
+            exit 1
+          fi
           
           echo "EC2_IP=$EC2_IP" >> $GITHUB_OUTPUT
           echo "Found EC2 IP: $EC2_IP"
@@ -54,4 +62,3 @@ jobs:
             sleep 2
             nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
           EOF
-
