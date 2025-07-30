@@ -8,7 +8,7 @@ users = {
 
 @app.route("/")
 def home():
-    return " Hello world! Welcome to the 2‑Tier App!"
+    return " Hello world, My Friend! Welcome to the 2‑Tier App!"
 
 @app.route("/users/<id>")
 def get_user(id):
