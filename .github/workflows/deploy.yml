@@ -58,7 +58,7 @@ jobs:
             cd /home/ubuntu/app
             git pull origin main
             pip3 install --break-system-packages --ignore-installed --no-cache-dir -r requirements.txt
-            pkill -f app.py || true
+            sudo pkill -f app.py || true
             sleep 2
             nohup python3 app.py > /home/ubuntu/app/app.log 2>&1 &
           EOF
